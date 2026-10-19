@@ -15,7 +15,6 @@ load_dotenv()
 ROOT = Path(__file__).resolve().parent
 MOVIES_PATH = ROOT / "movies.pkl"
 SIMILARITY_PATH = ROOT / "movie_dict.pkl"
-POSTER_FALLBACK = "https://placehold.co/500x750?text=Poster+unavailable"
 
 
 def recommend_movies(
@@ -69,7 +68,7 @@ def load_assets() -> tuple[pd.DataFrame, Any]:
         similarity = pickle.load(similarity_file)
 
     if not isinstance(movies, pd.DataFrame):
-        raise ValueError("movies.pkl must contain a pandas DataFrame.")
+        raise TypeError("movies.pkl must contain a pandas DataFrame.")
     if len(similarity) != len(movies):
         raise ValueError("The similarity artifact does not match the movie catalog.")
     return movies, similarity
@@ -106,7 +105,7 @@ def main() -> None:
 
     try:
         movies, similarity = _cached_assets()
-    except (OSError, pickle.PickleError, EOFError, ImportError, ValueError) as error:
+    except (OSError, pickle.PickleError, EOFError, ImportError, TypeError, ValueError) as error:
         st.error(f"The recommendation catalog could not be loaded: {error}")
         st.info("Confirm that movies.pkl and movie_dict.pkl are present and were generated together.")
         st.stop()
@@ -135,7 +134,10 @@ def main() -> None:
     for column, movie in zip(columns, recommendations):
         with column:
             poster_url = fetch_poster(movie["movie_id"], api_key)
-            st.image(poster_url or POSTER_FALLBACK, use_container_width=True)
+            if poster_url:
+                st.image(poster_url, use_container_width=True)
+            else:
+                st.caption("Poster unavailable")
             st.markdown(f"**{movie['title']}**")
 
 

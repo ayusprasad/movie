@@ -64,7 +64,7 @@ Copy `.env.example` to `.env` and set `TMDB_API_KEY` if you want poster images. 
 streamlit run app.py
 ```
 
-Select a movie and choose **Show recommendations**. If poster retrieval fails, the titles remain available and the app displays a placeholder.
+Select a movie and choose **Show recommendations**. If poster retrieval fails, the titles remain available with a short poster status note.
 
 ## Quality checks
 
